@@ -16,7 +16,6 @@ const getFiles = (dir, subPath=[], all=false) => {
   const scanDir = subPath.length > 0 ? `${dir}/${subPath.join('/')}` : dir
 
   const dirFiles = fs.readdirSync(scanDir)
-  console.log("GET FILES", dir, subPath, all, dirFiles)
   for (let dirFile of dirFiles) {
     const fullPath = `${scanDir}/${dirFile}`
     if (fs.lstatSync(fullPath).isDirectory()) {
@@ -58,6 +57,7 @@ const run = async () => {
       const folderPath = require('path').resolve(process.cwd(), targetFolder)
       const files = fs.readdirSync(folderPath)
       fs.writeFileSync('./out.csv', files.join('\n'))
+
       break
     }
 
