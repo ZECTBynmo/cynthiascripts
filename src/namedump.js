@@ -1,5 +1,7 @@
 const fs = require('fs')
 const parse = require('csv-parse/lib/sync')
+const crypto = require('crypto')
+const nodePath = require('path')
 
 const argv = require('yargs')
   .usage('usage $0 <command> [options]')
@@ -57,6 +59,138 @@ const run = async () => {
       const folderPath = require('path').resolve(process.cwd(), targetFolder)
       const files = fs.readdirSync(folderPath)
       fs.writeFileSync('./out.csv', files.join('\n'))
+
+      break
+    }
+
+    case 'unpack': {
+      const [targetFolder] = args
+      const folderPath = nodePath.resolve(process.cwd(), targetFolder)
+      const files = fs.readdirSync(folderPath)
+
+      const outputDir = folderPath + '/out'
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir)
+      }
+
+      for (let file of files) {
+        const fullPath = `${folderPath}/${file}`
+        if (fs.lstatSync(fullPath).isDirectory() && !isNaN(file)) {
+          const fileNum = file
+
+          const contents = fs.readdirSync(fullPath)
+          for (let folderItem of contents) {
+            const ext = nodePath.extname(folderItem)
+            if (ext === '.zip') {
+              console.log("FOUND ZIP", fileNum, folderItem)
+            }
+          }
+        }
+      }
+
+      break
+    }
+
+    case 'seqcheck': {
+      const [targetFolder] = args
+      const folderPath = require('path').resolve(process.cwd(), targetFolder)
+      const files = fs.readdirSync(folderPath)
+
+      const found = []
+      for (let file of files) {
+        const fullPath = `${folderPath}/${file}`
+        if (fs.lstatSync(fullPath).isDirectory() && !isNaN(file)) {
+          const fileNum = Number(file)
+          found.push(fileNum)
+        }
+      }
+
+      found.sort()
+
+      console.log("FOUND", found)
+
+      let hasMissing = false
+      for (let iItem in found) {
+        iItem = Number(iItem)
+        const val = found[iItem]
+        if (iItem < found.length - 1) {
+          const nextVal = found[iItem + 1]
+          if (nextVal > val + 1) {
+            for (let iAlert=val+1; iAlert < nextVal; ++iAlert) {
+              console.log("ALERT! MISSING", iAlert)
+            }
+
+            hasMissing = true
+          }
+        }
+      }
+
+      if (!hasMissing) {
+        console.log("\n Green light - all folders are sequential")
+      }
+
+      break
+    }
+
+    case 'compare': {
+      const [firstTarget, secondTarget] = args
+      const checksums = {}
+
+      const fileHash = async (filename, algorithm = 'md5') => {
+        return new Promise((resolve, reject) => {
+          // Algorithm depends on availability of OpenSSL on platform
+          // Another algorithms: 'sha1', 'md5', 'sha256', 'sha512' ...
+          let shasum = crypto.createHash(algorithm)
+          try {
+            let s = fs.ReadStream(filename)
+            s.on('data', function (data) {
+              shasum.update(data)
+            })
+            // making digest
+            s.on('end', function () {
+              const hash = shasum.digest('hex')
+              return resolve(hash)
+            })
+          } catch (error) {
+            return reject('calc fail')
+          }
+        })
+      }
+
+      const getFolderChecksums = async (folderPath) => {
+        const files = fs.readdirSync(folderPath)
+
+        for (let file of files) {
+          const fullPath = `${folderPath}/${file}`
+          if (fs.lstatSync(fullPath).isDirectory()) {
+            await getFolderChecksums(fullPath)
+          } else {
+            const checksum = await fileHash(fullPath)
+
+            if (checksums[checksum] === undefined) {
+              checksums[checksum] = []
+            }
+
+            checksums[checksum].push(fullPath)
+          }
+        }
+      }
+
+      await getFolderChecksums(require('path').resolve(process.cwd(), firstTarget))
+      await getFolderChecksums(require('path').resolve(process.cwd(), secondTarget))
+
+      let hasDupe = false
+      for (let key in checksums) {
+        const val = checksums[key]
+        if (val.length > 1) {
+          console.log("DUMPLICATE", val.join(' - '))
+          hasDupe = true
+        }
+      }
+
+      if (!hasDupe) {
+        console.log("\n no duplicates found")
+      }
 
       break
     }

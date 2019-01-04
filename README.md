@@ -5,7 +5,7 @@
 1. Find your node executable (it'll be on your USB drive, and you'll have to navigate there in the terminal or somehow find the exact path of node.exe)
 2. Install the dependences
   a. Navigate to the cynthiascripts folder on your usb drive in terminal
-  b. run `[node path]/npm install csv-parse`
+  b. run `[node path]/npm install`
 
 ## Usage
 
@@ -30,3 +30,15 @@ If you leave input.csv blank, it will default to `[current terminal path]/input.
 ### "Flatten" directory (print recursive contents of m1 and m5 folders)
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js flatten [targetFolder]` 
+
+### Sequence Check (make sure folders with names like 000056, 000057, etc. are sequential with none missing)
+
+`[node path]/node.exe [cynthiascripts path]/src/namedump.js seqcheck [targetFolder]` 
+
+### File Compare (checksum files in folders and look for differences)
+
+`[node path]/node.exe [cynthiascripts path]/src/namedump.js compare [firstFolder] [secondFolder]` 
+
+### Unpack
+
+`[node path]/node.exe [cynthiascripts path]/src/namedump.js unpack [targetFolder]` 
