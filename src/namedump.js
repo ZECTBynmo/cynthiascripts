@@ -1,6 +1,7 @@
 const fs = require('fs')
 const parse = require('csv-parse/lib/sync')
 const crypto = require('crypto')
+const extract = require('extract-zip')
 const nodePath = require('path')
 
 const argv = require('yargs')
@@ -69,8 +70,12 @@ const run = async () => {
       const files = fs.readdirSync(folderPath)
 
       const outputDir = folderPath + '/out'
+      const receiptsDir = folderPath + '/out/receipts'
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir)
+      }
+      if (!fs.existsSync(receiptsDir)) {
+        fs.mkdirSync(receiptsDir)
       }
 
       for (let file of files) {
@@ -82,7 +87,20 @@ const run = async () => {
           for (let folderItem of contents) {
             const ext = nodePath.extname(folderItem)
             if (ext === '.zip') {
-              console.log("FOUND ZIP", fileNum, folderItem)
+              const dest = `${outputDir}`
+
+              await new Promise((resolve, reject) => {
+                extract(`${fullPath}/${folderItem}`, {dir: dest}, (err) => {
+                  err ? reject(err) : resolve()
+                })
+              })
+            } else {
+              const receiptItemDir = `${receiptsDir}/${fileNum}`
+              if (!fs.existsSync(receiptItemDir)) {
+                fs.mkdirSync(receiptItemDir)
+              }
+
+              fs.copyFileSync(`${fullPath}/${folderItem}`, `${receiptItemDir}/${folderItem}`)
             }
           }
         }
