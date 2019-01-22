@@ -1,5 +1,5 @@
 const fs = require('fs')
-const {npc} = require('npc')
+const {ncp} = require('ncp')
 const parse = require('csv-parse/lib/sync')
 const crypto = require('crypto')
 const extract = require('extract-zip')
