@@ -1,8 +1,11 @@
 const fs = require('fs')
+const {npc} = require('npc')
 const parse = require('csv-parse/lib/sync')
 const crypto = require('crypto')
 const extract = require('extract-zip')
 const nodePath = require('path')
+
+ncp.limit = 16
 
 const argv = require('yargs')
   .usage('usage $0 <command> [options]')
@@ -100,7 +103,8 @@ const run = async () => {
                 fs.mkdirSync(receiptItemDir)
               }
 
-              fs.copyFileSync(`${fullPath}/${folderItem}`, `${receiptItemDir}/${folderItem}`)
+              const contents = fs.readFileSync(`${fullPath}/${folderItem}`)
+              fs.writeFileSync(`${receiptItemDir}/${folderItem}`, contents)
             }
           }
         }
@@ -244,7 +248,15 @@ const run = async () => {
           const source = `${folderPath}/${file}`
           const dest = `${folderPath}/${newPath}`
 
-          fs.renameSync(source, dest)
+          if (fs.lstatSync(fullPath).isDirectory(source)) {
+            await new Promise((resolve, reject) => {
+              ncp(source, dest, (err) => {
+                err ? reject(err) : resolve()
+              })
+            })
+          } else {
+            fs.renameSync(source, dest)
+          }
         }
       }
 
