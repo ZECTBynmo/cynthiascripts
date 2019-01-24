@@ -2,6 +2,7 @@ const fs = require('fs')
 const {ncp} = require('ncp')
 const parse = require('csv-parse/lib/sync')
 const crypto = require('crypto')
+const rimraf = require('rimraf')
 const extract = require('extract-zip')
 const nodePath = require('path')
 
@@ -233,7 +234,7 @@ const run = async () => {
       const inputMap = {}
       for (let inputLine of input) {
         const [key, val] = inputLine
-        inputMap[key] = val
+        inputMap[key] = val.trim()
       }
 
       for (let file of files) {
@@ -248,12 +249,14 @@ const run = async () => {
           const source = `${folderPath}/${file}`
           const dest = `${folderPath}/${newPath}`
 
-          if (fs.lstatSync(fullPath).isDirectory(source)) {
+          if (fs.lstatSync(source).isDirectory(source)) {
             await new Promise((resolve, reject) => {
               ncp(source, dest, (err) => {
                 err ? reject(err) : resolve()
               })
             })
+
+            rimraf.sync(source)
           } else {
             fs.renameSync(source, dest)
           }
