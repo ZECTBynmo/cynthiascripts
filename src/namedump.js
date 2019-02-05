@@ -317,3 +317,13 @@ const run = async () => {
 }
 
 run()
+
+process.on('unhandledRejection', (err) => {
+  console.log("INFO unhandledRejection", err)
+  process.exit()
+})
+
+process.on('unhandledException', (err) => {
+  console.log("INFO unhandledException", err)
+  process.exit()
+})
