@@ -59,11 +59,29 @@ const run = async () => {
       break
     }
 
-    case 'dump': {
+    case 'truncate': {
       const [targetFolder] = args
+      const files = getFiles(targetFolder, [], true)
+      for (let file of files) {
+        if (fs.lstatSync(source).isDirectory(source)) {
+          await new Promise((resolve, reject) => {
+            ncp(source, dest, (err) => {
+              err ? reject(err) : resolve()
+            })
+          })
+
+          rimraf.sync(source)
+        }
+      }
+      break
+    }
+
+    case 'dump': {
+      const [targetFolder, outputFolder] = args
       const folderPath = require('path').resolve(process.cwd(), targetFolder)
+      const outPath = require('path').resolve(process.cwd(), outputFolder || '.') + '/out.csv'
       const files = fs.readdirSync(folderPath)
-      fs.writeFileSync('./out.csv', files.join('\n'))
+      fs.writeFileSync(outPath, files.join('\n'))
 
       break
     }
