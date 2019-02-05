@@ -1,4 +1,5 @@
 const fs = require('fs')
+const XLSX = require('xlsx')
 const {ncp} = require('ncp')
 const parse = require('csv-parse/lib/sync')
 const crypto = require('crypto')
@@ -79,10 +80,20 @@ const run = async () => {
     case 'dump': {
       const [targetFolder, outputFolder] = args
       const folderPath = require('path').resolve(process.cwd(), targetFolder)
-      const outPath = require('path').resolve(process.cwd(), outputFolder || '.') + '/out.csv'
+      const outPath = require('path').resolve(process.cwd(), outputFolder || '.') + '/out.xlsx'
+      
       const files = fs.readdirSync(folderPath)
-      fs.writeFileSync(outPath, files.join('\n'))
 
+      const data = [['file', 'target']]
+      for (let file of files) {
+        data.push([file, ' '])
+      }
+
+      const workbook = XLSX.utils.book_new()
+      const worksheet = XLSX.utils.aoa_to_sheet(data)
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'files')
+
+      XLSX.writeFile(workbook, outPath)
       break
     }
 
@@ -240,20 +251,29 @@ const run = async () => {
       let [targetFolder, inputPath] = args
 
       if (inputPath === undefined) {
-        inputPath = process.cwd() + '/input.csv'
+        inputPath = process.cwd() + '/input.xlsx'
       }
+
+      const workbook = XLSX.readFile(inputPath)
+
+      const sheetName = workbook.SheetNames[0]
+      const sheet = workbook.Sheets[sheetName]
+
+      const input = XLSX.utils.sheet_to_json(sheet)
 
       const folderPath = require('path').resolve(process.cwd(), targetFolder)
       const files = fs.readdirSync(folderPath)
 
-      const inputFile = fs.readFileSync(inputPath).toString()
-      const input = parse(inputFile)
-
       const inputMap = {}
       for (let inputLine of input) {
-        const [key, val] = inputLine
-        inputMap[key] = val.trim()
+        const target = inputLine.target.trim()
+
+        if (target !== undefined && target !== '') {
+          inputMap[inputLine.file] = target
+        }
       }
+
+      console.log("INPUT MAP", inputMap)
 
       for (let file of files) {
         if (inputMap[file]) {
@@ -268,6 +288,7 @@ const run = async () => {
           const dest = `${folderPath}/${newPath}`
 
           if (fs.lstatSync(source).isDirectory(source)) {
+            console.log("MOVING FOLDER", source, dest)
             await new Promise((resolve, reject) => {
               ncp(source, dest, (err) => {
                 err ? reject(err) : resolve()
@@ -276,6 +297,7 @@ const run = async () => {
 
             rimraf.sync(source)
           } else {
+            console.log("RENAMING FILE", source, dest)
             fs.renameSync(source, dest)
           }
         }
