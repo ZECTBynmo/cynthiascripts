@@ -80,7 +80,7 @@ const run = async () => {
     case 'dump': {
       const [targetFolder, outputFolder] = args
       const folderPath = require('path').resolve(process.cwd(), targetFolder)
-      const outPath = require('path').resolve(process.cwd(), outputFolder || '.') + '/out.xlsx'
+      const outPath = require('path').resolve(process.cwd(), outputFolder || targetFolder) + '/out.xlsx'
       
       const files = fs.readdirSync(folderPath)
 
@@ -91,8 +91,8 @@ const run = async () => {
 
       const workbook = XLSX.utils.book_new()
       const worksheet = XLSX.utils.aoa_to_sheet(data)
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'files')
 
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'files')
       XLSX.writeFile(workbook, outPath)
       break
     }
@@ -284,8 +284,8 @@ const run = async () => {
             newPath += ext
           }
 
-          const source = `${folderPath}/${file}`
-          const dest = `${folderPath}/${newPath}`
+          const source = nodePath.resolve(folderPath, file)
+          const dest = nodePath.resolve(folderPath, newPath)
 
           if (fs.lstatSync(source).isDirectory(source)) {
             console.log("MOVING FOLDER", source, dest)
