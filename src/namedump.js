@@ -277,12 +277,7 @@ const run = async () => {
 
       for (let file of files) {
         if (inputMap[file]) {
-          const ext = require('path').extname(file)
           let newPath = inputMap[file]
-
-          if (newPath.indexOf(ext) === -1) {
-            newPath += ext
-          }
 
           const source = nodePath.resolve(folderPath, file)
           const dest = nodePath.resolve(folderPath, newPath)
