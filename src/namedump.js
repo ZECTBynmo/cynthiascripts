@@ -157,7 +157,7 @@ const run = async () => {
         }
       }
 
-      found.sort()
+      found.sort((a, b) => {return a - b})
 
       console.log("FOUND", found)
 
