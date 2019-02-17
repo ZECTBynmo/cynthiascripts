@@ -9,11 +9,11 @@
 
 ## Usage
 
-### Dump contents of a folder (ex. C:/somefolder)
+### Dump (dump file name contents of a folder (ex. C:/somefolder))
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js dump [targetFolder]`
 
-This will create out.csv within the folder that you're currently in (in terminal)
+This will create out.csv within the target folder
 
 ### Rename folder contents
 
@@ -27,7 +27,7 @@ If you leave input.csv blank, it will default to `[current terminal path]/input.
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js flattenall [targetFolder]` 
 
-### "Flatten" directory (print recursive contents of m1 and m5 folders)
+### "Flatten" directory (print recursive contents of m1-m5 folders)
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js flatten [targetFolder]` 
 
@@ -35,10 +35,10 @@ If you leave input.csv blank, it will default to `[current terminal path]/input.
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js seqcheck [targetFolder]` 
 
-### File Compare (checksum files in folders and look for differences)
+### File Compare (Examine all folders within some parent directory and look for duplicate files based on checksums)
 
-`[node path]/node.exe [cynthiascripts path]/src/namedump.js compare [firstFolder] [secondFolder]` 
+`[node path]/node.exe [cynthiascripts path]/src/namedump.js compare [target]` 
 
-### Unpack
+### Unpack (unzip submissions uploaded to Sharefile to provide receipts and submissions folders)
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js unpack [targetFolder]` 
