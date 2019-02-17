@@ -102,8 +102,9 @@ const run = async () => {
       const folderPath = nodePath.resolve(process.cwd(), targetFolder)
       const files = fs.readdirSync(folderPath)
 
-      const outputDir = folderPath + '/out'
-      const receiptsDir = folderPath + '/out/receipts'
+      const outputName = 'unpacked'
+      const outputDir = `${folderPath}/${outputName}`
+      const receiptsDir = `${folderPath}/${outputName}/receipts`
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir)
       }
@@ -185,8 +186,11 @@ const run = async () => {
     }
 
     case 'compare': {
-      const [firstTarget, secondTarget] = args
+      const [target] = args
       const checksums = {}
+
+      const parentDir = require('path').resolve(process.cwd(), target)
+      const files = fs.readdirSync(target)
 
       const fileHash = async (filename, algorithm = 'md5') => {
         return new Promise((resolve, reject) => {
@@ -228,14 +232,18 @@ const run = async () => {
         }
       }
 
-      await getFolderChecksums(require('path').resolve(process.cwd(), firstTarget))
-      await getFolderChecksums(require('path').resolve(process.cwd(), secondTarget))
+      for (let file of files) {
+        const fullPath = `${parentDir}/${file}`
+        if (fs.lstatSync(fullPath).isDirectory()) {
+          await getFolderChecksums(fullPath)
+        }
+      }
 
       let hasDupe = false
       for (let key in checksums) {
         const val = checksums[key]
         if (val.length > 1) {
-          console.log("DUMPLICATE", val.join(' - '))
+          console.log("\nDUMPLICATE", val.join('\n'))
           hasDupe = true
         }
       }
