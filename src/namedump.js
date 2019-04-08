@@ -80,7 +80,7 @@ const run = async () => {
 
     case 'seqcheck': {
       const [targetFolder] = args
-      await jewels.seqcheck(targetFolder)
+      await jewels.seqCheck(targetFolder)
       break
     }
 
