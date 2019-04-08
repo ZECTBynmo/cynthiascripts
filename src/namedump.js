@@ -97,6 +97,12 @@ const run = async () => {
       break
     }
 
+    case 'validate': {
+      let [targetFolder] = args
+      await jewels.validateParentFolder(targetFolder)
+      break
+    }
+
     default: {
       console.log("UNKNOWN COMMAND", command)
       break

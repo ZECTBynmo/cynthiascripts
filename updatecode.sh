@@ -1,1 +1,1 @@
-../git.exe pull git@github.com:ZECTBynmo/cynthiascripts.git
+../git.exe pull

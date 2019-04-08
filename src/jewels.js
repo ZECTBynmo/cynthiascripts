@@ -18,7 +18,12 @@ const getFiles = (dir, subPath=[], all=false) => {
       const innerFiles = getFiles(dir, subPath.concat([dirFile]), all)
       files = files.concat(innerFiles)
     } else {
-      const destName = [subPath.slice(0, 2).join('-'), dirFile].join('-')
+      let destName
+      if (subPath.length > 0) {
+        destName = [subPath.slice(0, 2).join('-'), dirFile].join('-')
+      } else {
+        destName = dirFile
+      }
       const dest = `${dir}/${destName}`
 
       if (all || subPath.includes('m1') || subPath.includes('m2') || subPath.includes('m3') || subPath.includes('m4') || subPath.includes('m5')) {
@@ -29,6 +34,17 @@ const getFiles = (dir, subPath=[], all=false) => {
   }
 
   return files
+}
+
+const checkExistsFuzzy = (dir, substring, ext) => {
+  const allFiles = getFiles(dir, [], true)
+  for (let file of allFiles) {
+    if (file.indexOf(substring) != -1 && nodePath.extname(file) === ext) {
+      return true
+    }
+  }
+
+  return false
 }
 
 exports.flatten = async (targetFolder, flattenAll=false) => {
@@ -209,7 +225,7 @@ exports.compare = async (target) => {
   for (let key in checksums) {
     const val = checksums[key]
     if (val.length > 1) {
-      console.log("\nDUMPLICATE", val.join('\n'))
+      console.log("\nDUMPLICATE\n", val.join('\n'))
       hasDupe = true
     }
   }
@@ -252,7 +268,7 @@ exports.rename = async (targetFolder, inputPath) => {
       const source = nodePath.resolve(folderPath, file)
       const dest = nodePath.resolve(folderPath, newPath)
 
-      if (fs.lstatSync(source).isDirectory(source)) {
+      if (fs.lstatSync(source).isDirectory()) {
         console.log("MOVING FOLDER", source, dest)
         await new Promise((resolve, reject) => {
           ncp(source, dest, (err) => {
@@ -267,4 +283,137 @@ exports.rename = async (targetFolder, inputPath) => {
       }
     }
   }
+}
+
+exports.validateFormat = async (targetFolder) => {
+  const folderPath = require('path').resolve(process.cwd(), targetFolder)
+  const files = fs.readdirSync(folderPath)
+
+  let didFail = false
+  let output = 'structure checks\n'
+
+  if (files.includes('index.xml')) {
+    ouptut += 'index.xml file exists and is in root folder...pass\n'
+  } else {
+    ouptut += 'index.xml file exists and is in root folder...FAIL\n'
+    didFail = true
+  }
+
+  if (files.includes('index-md5.txt')) {
+    ouptut += 'index-md5.txt file exists and is in root folder...pass\n'
+  } else {
+    ouptut += 'index-md5.txt file exists and is in root folder...FAIL\n'
+    didFail = true
+  }
+
+  try {
+    const dtdFiles = fs.readdirSync(folderPath + '/util/dtd')
+    let has
+  } catch (err) {
+
+  }
+}
+
+exports.validateParentFolder = async (parentFolder) => {
+  const folderPath = require('path').resolve(process.cwd(), parentFolder)
+  const files = fs.readdirSync(folderPath)
+
+  const allFails = {}
+
+  for (let file of files) {
+    const fullPath = `${folderPath}/${file}`
+    if (fs.lstatSync(fullPath).isDirectory()) {
+      const failures = await exports.validateFolder(fullPath)
+
+      if (failures && failures.length > 0) {
+        allFails[fullPath] = failures
+      }
+    }
+  }
+
+  let fileStr = ''
+
+  for (let failPath in allFails) {
+    fileStr += `\n************** START ${failPath} **************\n\n`
+
+    for (let fail of allFails[failPath]) {
+      fileStr += `- ${fail}`
+    }
+
+    fileStr += `\n\n************** END ${failPath} **************\n\n`
+  }
+
+  fs.writeFileSync(`${folderPath}/failures.txt`, fileStr)
+}
+
+exports.validateFolder = async (targetFolder) => {
+  console.log("VALIDATING", targetFolder)
+  const fails = []
+  const passes = []
+
+  const checkExists = (file, report=true) => {
+    if (!fs.existsSync(file)) {
+      if (report) {
+        fails.push(`Missing ${file}`)
+      }
+      return false
+    } else {
+      if (report) {
+        passes.push(`Has extact ${file}`)
+      }
+      return true
+    }
+  }
+
+  const checkFuzzy = (dir, file, ext) => {
+    if (!checkExistsFuzzy(dir, file, ext)) {
+      fails.push(`Missing ${dir} ${file} ${ext}`)
+    } else {
+      passes.push(`Has fuzzy ${dir} ${file} ${ext}`)
+    }
+  }
+
+  checkExists(`${targetFolder}/index.xml`)
+  checkExists(`${targetFolder}/index-md5.txt`)
+  
+  checkExists(`${targetFolder}/util/dtd`)
+  checkExists(`${targetFolder}/util/style`)
+  
+  checkFuzzy(`${targetFolder}/util/dtd`, 'ich-ectd', '.dtd')
+  checkFuzzy(`${targetFolder}/util/style`, 'ectd', '.xsl')
+
+  checkFuzzy(`${targetFolder}/m1`, 'us-regional', '.xml')
+  checkFuzzy(`${targetFolder}/m1`, 'cover', '.pdf')
+  checkFuzzy(`${targetFolder}/m1`, '1571', '.pdf')
+
+  const allowedFormats = {
+    m1: ['.pdf','.doc','.docx','.bmp','.gif','.png','.jpg','.jpeg','.au','.avi','.flv','.fla','.f4v','.mpg','.mpeg','.mp2','.mp3','.mp4','.swf','.wav','.wma','.wmv','.css','.dtd','.htm','.html','.xml','.xsl'],
+    m2: ['.pdf', '.gif', '.png', '.jpg', '.jpeg'],
+    m3: ['.pdf', '.txt', '.xls', '.xlsx', '.gif', '.png', '.jpg', '.jpeg', '.svg', '.xpt', '.sas', '.r'],
+    m4: ['.pdf', '.txt', '.xls','.xlsx','.gif', '.png', '.jpg', '.jpeg', '.css', '.xml', '.xsl', '.svg', '.xpt', '.sas', '.r'],
+    m5: ['.pdf','.txt','.xls','.xlsx','.gif','.png','.jpg','.jpeg','.css','.xml','.xsl','.csv','.svg','.xpt','.cmp','.wks','.lbr','.lua','.sas','.r','.ctl']
+  }
+
+  for (let folderName in allowedFormats) {
+    if (checkExists(`${targetFolder}/${folderName}`, false)) {
+      const allFiles = getFiles(`${targetFolder}/${folderName}`, [], true)
+      for (let file of allFiles) {
+        const formats = allowedFormats[folderName]
+        const ext = nodePath.extname(file)
+        if (!formats.includes(ext) && ext !== '.db') {
+          fails.push(`illegal format ${ext} on file ${file}`)
+        }
+      }
+    }
+  }
+
+  // console.log("PASSES\n", passes.join('\n'))
+
+  // if (fails.length) {
+  //   console.log("FAILURES:\n\n", fails.join('\n'))
+  // } else {
+  //   console.log("FOLDER IS OK")
+  // }
+
+  return fails
 }
