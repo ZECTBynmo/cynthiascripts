@@ -27,7 +27,6 @@ const getFiles = (dir, subPath=[], all=false) => {
       const dest = `${dir}/${destName}`
 
       if (all || subPath.includes('m1') || subPath.includes('m2') || subPath.includes('m3') || subPath.includes('m4') || subPath.includes('m5')) {
-        fs.renameSync(fullPath, dest)
         files.push(dest)
       }
     }
