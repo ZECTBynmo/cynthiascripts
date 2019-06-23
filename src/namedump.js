@@ -20,30 +20,6 @@ const argv = require('yargs')
 
 const [command, ...args] = argv._
 
-const getFiles = (dir, subPath=[], all=false) => {
-  let files = []
-  const scanDir = subPath.length > 0 ? `${dir}/${subPath.join('/')}` : dir
-
-  const dirFiles = fs.readdirSync(scanDir)
-  for (let dirFile of dirFiles) {
-    const fullPath = `${scanDir}/${dirFile}`
-    if (fs.lstatSync(fullPath).isDirectory()) {
-      const innerFiles = getFiles(dir, subPath.concat([dirFile]), all)
-      files = files.concat(innerFiles)
-    } else {
-      const destName = [subPath.slice(0, 2).join('-'), dirFile].join('-')
-      const dest = `${dir}/${destName}`
-
-      if (all || subPath.includes('m1') || subPath.includes('m2') || subPath.includes('m3') || subPath.includes('m4') || subPath.includes('m5')) {
-        fs.renameSync(fullPath, dest)
-        files.push(dest)
-      }
-    }
-  }
-
-  return files
-}
-
 const run = async () => {
 
   switch (command) {
@@ -59,11 +35,11 @@ const run = async () => {
       break
     }
 
-    case 'truncate': {
-      const [targetFolder] = args
-      await jewels.truncate(targetFolder)
-      break
-    }
+    // case 'truncate': {
+    //   const [targetFolder] = args
+    //   await jewels.truncate(targetFolder)
+    //   break
+    // }
 
     case 'dump': {
       const [targetFolder, outputFolder] = args
@@ -71,12 +47,12 @@ const run = async () => {
       break
     }
 
-    case 'unpack': {
-      const [targetFolder] = args
-      await jewels.unpack(targetFolder)
+    // case 'unpack': {
+    //   const [targetFolder] = args
+    //   await jewels.unpack(targetFolder)
 
-      break
-    }
+    //   break
+    // }
 
     case 'seqcheck': {
       const [targetFolder] = args
