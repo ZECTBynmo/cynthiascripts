@@ -7,27 +7,23 @@ const rimraf = require('rimraf')
 const extract = require('extract-zip')
 const nodePath = require('path')
 
-const getFiles = (dir, subPath=[], all=false) => {
+const getFiles = (dir, subPath=[], all=false, withDetails=false) => {
   let files = []
   const scanDir = subPath.length > 0 ? `${dir}/${subPath.join('/')}` : dir
 
   const dirFiles = fs.readdirSync(scanDir)
   for (let dirFile of dirFiles) {
-    const fullPath = `${scanDir}/${dirFile}`
+    const fullPath = nodePath.resolve(`${scanDir}/${dirFile}`)
     if (fs.lstatSync(fullPath).isDirectory()) {
-      const innerFiles = getFiles(dir, subPath.concat([dirFile]), all)
+      const innerFiles = getFiles(dir, subPath.concat([dirFile]), all, withDetails)
       files = files.concat(innerFiles)
     } else {
-      let destName
-      if (subPath.length > 0) {
-        destName = [subPath.slice(0, 2).join('-'), dirFile].join('-')
-      } else {
-        destName = dirFile
-      }
-      const dest = `${dir}/${destName}`
-
       if (all || subPath.includes('m1') || subPath.includes('m2') || subPath.includes('m3') || subPath.includes('m4') || subPath.includes('m5')) {
-        files.push(dest)
+        if (withDetails) {
+          files.push([fullPath, subPath, dirFile])
+        } else {
+          files.push(fullPath)
+        }
       }
     }
   }
@@ -47,7 +43,23 @@ const checkExistsFuzzy = (dir, substring, ext) => {
 }
 
 exports.flatten = async (targetFolder, flattenAll=false) => {
-  const files = getFiles(targetFolder, [], flattenAll)
+  const files = getFiles(targetFolder, [], flattenAll, true)
+
+  for (let [fullPath, subPath, dirFile] of files) {
+    let destName
+    if (subPath.length > 0) {
+      destName = [subPath.slice(0, 2).join('-'), dirFile].join('-')
+    } else {
+      destName = dirFile
+    }
+    
+    const dest = nodePath.resolve(`${process.cwd()}/${destName}`)
+
+    console.log("DEST PATH", fullPath, dest)
+
+    // fs.renameFileSync(fullPath, dest)
+  }
+
   console.log(`flattened ${files.length} files`)
 }
 
