@@ -35,6 +35,10 @@ If you leave input.csv blank, it will default to `[current terminal path]/input.
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js seqcheck [targetFolder]` 
 
+### Validate (make sure folder contents has the right structure/files/etc.)
+
+`[node path]/node.exe [cynthiascripts path]/src/namedump.js validate [targetFolder]` 
+
 ### File Compare (Examine all folders within some parent directory and look for duplicate files based on checksums)
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js compare [target]` 
