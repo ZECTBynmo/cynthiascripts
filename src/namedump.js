@@ -23,6 +23,12 @@ const [command, ...args] = argv._
 const run = async () => {
 
   switch (command) {
+    case 'fdast': {
+      const [targetFolder] = args
+      await jewels.fdast(targetFolder)
+      break
+    }
+
     case 'flatten': {
       const [targetFolder] = args
       await jewels.flatten(targetFolder)

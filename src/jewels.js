@@ -6,6 +6,7 @@ const crypto = require('crypto')
 const rimraf = require('rimraf')
 const extract = require('extract-zip')
 const nodePath = require('path')
+const {parseString} = require('xml2js')
 
 const getFiles = (dir, subPath=[], all=false, withDetails=false) => {
   let files = []
@@ -40,6 +41,84 @@ const checkExistsFuzzy = (dir, substring, ext) => {
   }
 
   return false
+}
+
+exports.fdast = async (targetFolder) => {
+  const allFiles = getFiles(targetFolder, [], false, true)
+  const labels = ['submission type', 'type label', 'submission ID', 'submission sub type', 'sub type label', 'sequence number', 'folder number', 'file path']
+  const output = [labels]
+
+  const translations = {
+    fdasst4: 'Amendment',
+    fdasst3: 'Application',
+    fdasst7: 'Correspondence',
+    fdasst1: 'Original',
+    fdasst2: 'Presubmission',
+    fdasst6: 'Report',
+    fdasst5: 'Resubmission',
+    fdaat9: 'Premarket Approval Application (PMA)',
+    fdast5: 'Annual Report',
+    fdast3: 'Chemistry Manufacturing Controls Supplement',
+    fdast2: 'Efficacy Supplement',
+    fdast9: 'IND Safety Reports',
+    fdast4: 'Labeling Supplement',
+    fdast1: 'Original Application',
+    fdast10: 'Periodic Safety Reports',
+    fdast7: 'Postmarketing Requirements or Postmarketing Commitments',
+    fdast6: 'Product Correspondence',
+    fdast8: 'Promotional Labeling Advertising'
+  }
+
+  for (let [file, subPath, dirFile] of allFiles) {
+    if (file.indexOf('/us/us-regional.xml') !== -1) {
+      console.log("FOUND XML", file)
+
+      const contents = fs.readFileSync(file).toString()
+      
+      const data = await new Promise((resolve, reject) => {
+        parseString(contents, (err, results) => {
+          err ? reject(err) : resolve(results)
+        })
+      })
+
+      const version = data['fda-regional:fda-regional']['$']['dtd-version']
+
+      if (version !== '3.3') {
+        output.push(['xxx', 'xxx', 'xxx', 'xxx', 'xxx', 'xxx', 'xxx', file])
+        continue
+      }
+
+      const applicationSet = data['fda-regional:fda-regional'].admin[0]['application-set']
+      
+      for (let item of applicationSet) {
+        const application = item.application[0]
+        const app = application['application-information'][0]
+        const sub = application['submission-information'][0]
+        const appNumber = app['application-number'][0]
+
+        const applicationType = appNumber['$']['application-type']
+        const applicationNumber = appNumber._
+
+        const subId = sub['submission-id'][0]
+        const submissionId = subId._
+        const submissionType = subId['$']['submission-type']
+
+        const sequenceNumber = sub['sequence-number'][0]
+        const subType = sequenceNumber['$']['submission-sub-type']
+
+        const newRow = [submissionType, translations[submissionType], submissionId, subType, translations[subType], sequenceNumber._, subPath[0], file]
+
+        output.push(newRow)
+      }
+    }
+  }
+
+  const workbook = XLSX.utils.book_new()
+  const worksheet = XLSX.utils.aoa_to_sheet(output)
+
+  const outPath = require('path').resolve(process.cwd(), targetFolder) + '/fdast_out.xlsx'
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'fdast_out')
+  XLSX.writeFile(workbook, outPath)
 }
 
 exports.flatten = async (targetFolder, flattenAll=false) => {
