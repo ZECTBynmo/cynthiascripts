@@ -23,6 +23,10 @@ First, create an input.csv (maybe using out.csv)
 
 If you leave input.csv blank, it will default to `[current terminal path]/input.csv`
 
+### "Fdast" directory (find all the weird fdast stuff in a directory)
+
+`[node path]/node.exe [cynthiascripts path]/src/namedump.js fdast [targetFolder]` 
+
 ### "Flatten" directory (print all recursive contents)
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js flattenall [targetFolder]` 
