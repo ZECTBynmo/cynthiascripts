@@ -136,7 +136,7 @@ exports.flatten = async (targetFolder, flattenAll=false) => {
 
     console.log("DEST PATH", fullPath, dest)
 
-    // fs.renameFileSync(fullPath, dest)
+    fs.renameFileSync(fullPath, dest)
   }
 
   console.log(`flattened ${files.length} files`)
