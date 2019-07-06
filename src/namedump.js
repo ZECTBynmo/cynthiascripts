@@ -41,11 +41,11 @@ const run = async () => {
       break
     }
 
-    // case 'truncate': {
-    //   const [targetFolder] = args
-    //   await jewels.truncate(targetFolder)
-    //   break
-    // }
+    case 'truncate': {
+      const [targetFolder] = args
+      await jewels.truncate(targetFolder)
+      break
+    }
 
     case 'dump': {
       const [targetFolder, outputFolder] = args
