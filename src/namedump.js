@@ -60,6 +60,18 @@ const run = async () => {
     //   break
     // }
 
+    case 'pathcheck': {
+      const [targetFolder] = args
+      await jewels.pathCheck(targetFolder)
+      break
+    }
+
+    case 'pathcheck-simple': {
+      const [csvFilePath] = args
+      await jewels.seqCheck(targetFolder)
+      break
+    }
+
     case 'seqcheck': {
       const [targetFolder] = args
       await jewels.seqCheck(targetFolder)

@@ -70,7 +70,7 @@ exports.fdast = async (targetFolder) => {
   }
 
   for (let [file, subPath, dirFile] of allFiles) {
-    if (file.indexOf('/us/us-regional.xml') !== -1) {
+    if (file.indexOf('us-regional.xml') !== -1) {
       console.log("FOUND XML", file)
 
       const contents = fs.readFileSync(file).toString()
@@ -154,6 +154,64 @@ exports.truncate = async (targetFolder) => {
       })
 
       rimraf.sync(source)
+    }
+  }
+}
+
+exports.pathCheck = async (targetFolder) => {
+  const folderPath = require('path').resolve(process.cwd(), targetFolder)
+  console.log("CHECKING PATH", folderPath)
+
+  const topLevelItems = fs.readdirSync(folderPath)
+
+  for (item of topLevelItems) {
+    const filePath = `${folderPath}/${item}`
+    if (fs.lstatSync(filePath).isDirectory()) {
+      const allFiles = getFiles(filePath, [], true)
+
+      for (let file of allFiles) {
+        if (file.indexOf('index.xml') !== -1 || file.indexOf('us-regional.xml') !== -1) {
+          const contents = fs.readFileSync(file).toString()
+          
+          const data = await new Promise((resolve, reject) => {
+            parseString(contents, (err, results) => {
+              err ? reject(err) : resolve(results)
+            })
+          })
+
+          const checkObject = (obj, nesting=[]) => {
+            for (let key in obj) {
+              const val = obj[key]
+              
+              if (val.constructor === String) {
+                if (key === 'xlink:href') {
+                  let finalPath = `${nodePath.dirname(file)}/${val}`
+
+                  if (fs.existsSync(finalPath)) {
+                    // console.log("EXISTS")
+                  } else {
+                    console.log("DOES NOT EXIST", file, finalPath)
+                  }
+                }
+              } else {
+                const newPath = nesting.slice()
+                newPath.push(key)
+                checkObject(val, newPath)
+              }
+            }
+          }
+
+          for (let key in data) {
+            if (key === '$') {
+              continue
+            }
+
+            const val = data[key]
+            // console.log("KEYVAL", key, val)
+            checkObject(val)
+          }
+        }
+      }
     }
   }
 }
