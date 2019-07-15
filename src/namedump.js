@@ -68,7 +68,7 @@ const run = async () => {
 
     case 'pathcheck-simple': {
       const [csvFilePath] = args
-      await jewels.seqCheck(targetFolder)
+      await jewels.pathCheckSimple(csvFilePath)
       break
     }
 

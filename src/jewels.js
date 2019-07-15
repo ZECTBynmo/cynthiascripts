@@ -132,11 +132,11 @@ exports.flatten = async (targetFolder, flattenAll=false) => {
       destName = dirFile
     }
     
-    const dest = nodePath.resolve(`${process.cwd()}/${destName}`)
+    const dest = nodePath.resolve(`${targetFolder}/${destName}`)
 
     console.log("DEST PATH", fullPath, dest)
 
-    fs.renameFileSync(fullPath, dest)
+    fs.renameSync(fullPath, dest)
   }
 
   console.log(`flattened ${files.length} files`)
@@ -212,6 +212,21 @@ exports.pathCheck = async (targetFolder) => {
           }
         }
       }
+    }
+  }
+}
+
+exports.pathCheckSimple = async (csvFilePath) => {
+  const fullCSVPath = nodePath.resolve(csvFilePath)
+  const fileData = fs.readFileSync(csvFilePath).toString()
+  const items = parse(fileData)
+
+  for (let item of items) {
+    const file = item[0]
+
+    const fullPath = `${nodePath.dirname(fullCSVPath)}/${file}`
+    if (!fs.existsSync(fullPath)) {
+      console.log("DOES NOT EXIST", fullPath)
     }
   }
 }
