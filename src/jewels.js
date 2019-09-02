@@ -191,7 +191,7 @@ exports.pathCheck = async (targetFolder) => {
                   if (fs.existsSync(finalPath)) {
                     // console.log("EXISTS")
                   } else {
-                    fileContents += `DOES NOT EXIST: ${file} - ${filePath}`
+                    fileContents += `DOES NOT EXIST: ${file} - ${filePath}\n`
                   }
                 }
               } else {
