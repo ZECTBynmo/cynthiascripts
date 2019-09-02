@@ -15,7 +15,7 @@
 
 This will create out.csv within the target folder
 
-### Rename folder contents
+### Rename folder contents (also applies to folders)
 
 First, create an input.csv (maybe using out.csv)
 
@@ -23,19 +23,19 @@ First, create an input.csv (maybe using out.csv)
 
 If you leave input.csv blank, it will default to `[current terminal path]/input.csv`
 
-### "Fdast" directory (find all the weird fdast stuff in a directory)
+### "Fdast" directory (Print DTD 3.3 fdast submission type and sub-type with decoding)
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js fdast [targetFolder]` 
 
-### "Flatten" directory (print all recursive contents)
+### "Flatten" directory (print all recursive contents of multiple submissions, adding 1st level folder name to file name)
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js flattenall [targetFolder]` 
 
-### "Flatten" directory (print recursive contents of m1-m5 folders)
+### "Flatten" directory (print all recursive contents of multiple submissions, adding submission # and m1-m5 to the file name)
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js flatten [targetFolder]` 
 
-### Sequence Check (make sure folders with names like 000056, 000057, etc. are sequential with none missing)
+### Sequence Check (make sure folders with names like 0056, 0057, etc. are sequential with none missing)
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js seqcheck [targetFolder]` 
 
@@ -50,3 +50,11 @@ If you leave input.csv blank, it will default to `[current terminal path]/input.
 ### Unpack (unzip submissions uploaded to Sharefile to provide receipts and submissions folders)
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js unpack [targetFolder]` 
+
+### Pathcheck (finds links in index.xml and us-regional.xml and confirms that the targets exist)
+
+`[node path]/node.exe [cynthiascripts path]/src/namedump.js pathcheck [targetFolder]` 
+
+### Pathcheck simple (given a csv list of file paths (no starting /), checks that all files exist)
+
+`[node path]/node.exe [cynthiascripts path]/src/namedump.js pathcheck-simple [csvFilePath]` 
