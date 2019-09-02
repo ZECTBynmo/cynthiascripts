@@ -45,7 +45,7 @@ const checkExistsFuzzy = (dir, substring, ext) => {
 
 exports.fdast = async (targetFolder) => {
   const allFiles = getFiles(targetFolder, [], false, true)
-  const labels = ['submission type', 'type label', 'submission ID', 'submission sub type', 'sub type label', 'sequence number', 'folder number', 'file path']
+  const labels = ['submission ID', 'type label', 'sub type label', 'submission type', 'submission sub type', 'sequence number', 'folder number', 'file path']
   const output = [labels]
 
   const translations = {
@@ -106,7 +106,7 @@ exports.fdast = async (targetFolder) => {
         const sequenceNumber = sub['sequence-number'][0]
         const subType = sequenceNumber['$']['submission-sub-type']
 
-        const newRow = [submissionType, translations[submissionType], submissionId, subType, translations[subType], sequenceNumber._, subPath[0], file]
+        const newRow = [submissionId, translations[submissionType], translations[subType], submissionType, subType, sequenceNumber._, subPath[0], file]
 
         output.push(newRow)
       }
@@ -163,6 +163,7 @@ exports.pathCheck = async (targetFolder) => {
   console.log("CHECKING PATH", folderPath)
 
   const topLevelItems = fs.readdirSync(folderPath)
+  const fileContents = ''
 
   for (item of topLevelItems) {
     const filePath = `${folderPath}/${item}`
@@ -190,7 +191,7 @@ exports.pathCheck = async (targetFolder) => {
                   if (fs.existsSync(finalPath)) {
                     // console.log("EXISTS")
                   } else {
-                    console.log("DOES NOT EXIST", file, finalPath)
+                    fileContents += `DOES NOT EXIST: ${file} - ${filePath}`
                   }
                 }
               } else {
@@ -213,6 +214,10 @@ exports.pathCheck = async (targetFolder) => {
         }
       }
     }
+  }
+
+  if (fileContents.length > 0) {
+    fs.writeFileSync(`${folderPath}/path_failures.txt`, fileStr)
   }
 }
 
@@ -482,6 +487,7 @@ exports.validateParentFolder = async (parentFolder) => {
   const files = fs.readdirSync(folderPath)
 
   const allFails = {}
+  let hasFails = false
 
   for (let file of files) {
     const fullPath = `${folderPath}/${file}`
@@ -490,6 +496,7 @@ exports.validateParentFolder = async (parentFolder) => {
 
       if (failures && failures.length > 0) {
         allFails[fullPath] = failures
+        hasFails = true
       }
     }
   }
@@ -506,7 +513,9 @@ exports.validateParentFolder = async (parentFolder) => {
     fileStr += `\n\n************** END ${failPath} **************\n\n`
   }
 
-  fs.writeFileSync(`${folderPath}/failures.txt`, fileStr)
+  if (hasFails) {
+    fs.writeFileSync(`${folderPath}/failures.txt`, fileStr)
+  }
 }
 
 exports.validateFolder = async (targetFolder) => {
