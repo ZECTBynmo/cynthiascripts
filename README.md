@@ -15,6 +15,12 @@
 
 This will create out.csv within the target folder
 
+### Receipt Dump (dump with more stuff for receipts? I dunno)
+
+`[node path]/node.exe [cynthiascripts path]/src/namedump.js receiptDump [targetFolder]`
+
+This will create out.csv within the target folder
+
 ### Rename folder contents (also applies to folders)
 
 First, create an input.csv (maybe using out.csv)

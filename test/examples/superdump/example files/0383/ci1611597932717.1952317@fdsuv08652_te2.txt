@@ -1,0 +1,28 @@
+Center for Drug Evaluation and Research (CDER) 
+U.S.Food and Drug Administration 
+ 
+SUBJECT:ACKNOWLEDGEMENT OF SUBMISSION RECEIPT 
+SENT FROM:FDA ELECTRONIC SUBMISSIONS GATEWAY (ESG) 
+PRODUCTION 
+ 
+Account Name:Medpace Inc EM 
+MessageId: <19048308.778.1611597916915@CROUS-FDAPort1.medpace.medpace.com> 
+CoreId: ci1611597932717.1952317@fdsuv08652_te2 
+ 
+File Count: 15 
+Directory Count: 15 
+ 
+DateTime Receipt Generated: 01-25-2021, 13:09:58 
+Time Zone: Eastern 
+ 
+The date and time stamp contained in this message indicates when the ESG delivered your submission to CDER for processing. Once your submission has passed validation and been successfully processed, you will receive a final acknowledgement.Submissions that cannot be processed are subject to rejection.   
+ 
+Your official receipt date is calculated in accordance with the following final Guidance for Industry :  http://www.fda.gov/downloads/Drugs/GuidanceComplianceRegulatoryInformation/Guidances/UCM072385.pdf 
+ 
+Please be aware of deadlines for required electronic submission in eCTD format that begin May 5, 2017.See the eCTD web page for complete information regarding eCTD submissions: www.fda.gov/ectd 
+ 
+ 
+ 
+ 
+ 
+ 

@@ -53,6 +53,12 @@ const run = async () => {
       break
     }
 
+    case 'receiptDump': {
+      const [targetFolder, outputFolder] = args
+      await jewels.receiptDump(targetFolder, outputFolder)
+      break
+    }
+
     // case 'unpack': {
     //   const [targetFolder] = args
     //   await jewels.unpack(targetFolder)

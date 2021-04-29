@@ -254,6 +254,34 @@ exports.dump = async (targetFolder, outputFolder) => {
   XLSX.writeFile(workbook, outPath)
 }
 
+exports.receiptDump = async (targetFolder, outputFolder) => {
+  const folderPath = require('path').resolve(process.cwd(), targetFolder)
+  const outPath = require('path').resolve(process.cwd(), outputFolder || targetFolder) + '/out.xlsx'
+  
+  const files = fs.readdirSync(folderPath)
+
+  const data = [['file', 'name', 'submission']]
+  for (let dir of files) {
+    const subfolder = `${folderPath}/${dir}`
+    if (fs.lstatSync(subfolder).isDirectory()) {
+      const folderFiles = fs.readdirSync(subfolder)
+
+      for (let file of folderFiles) {
+        const fullPath = `${subfolder}/${file}`
+        const fileName = `/${dir}/${file}`
+        const baseName = nodePath.basename(file, nodePath.extname(file))
+        data.push([fileName, baseName, dir])
+      }
+    }
+  }
+
+  const workbook = XLSX.utils.book_new()
+  const worksheet = XLSX.utils.aoa_to_sheet(data)
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'files')
+  XLSX.writeFile(workbook, outPath)
+}
+
 exports.unpack = async (targetFolder) => {
   const folderPath = nodePath.resolve(process.cwd(), targetFolder)
   const files = fs.readdirSync(folderPath)
