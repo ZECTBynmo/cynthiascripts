@@ -64,3 +64,5 @@ If you leave input.csv blank, it will default to `[current terminal path]/input.
 ### Pathcheck simple (given a csv list of file paths (no starting /), checks that all files exist)
 
 `[node path]/node.exe [cynthiascripts path]/src/namedump.js pathcheck-simple [csvFilePath]` 
+
+### Triple (given any csv, triple each row and then write to an excel file)

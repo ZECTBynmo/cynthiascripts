@@ -78,6 +78,12 @@ const run = async () => {
       break
     }
 
+    case 'triple': {
+      const [csvFilePath] = args
+      await jewels.triple(csvFilePath)
+      break
+    }
+
     case 'seqcheck': {
       const [targetFolder] = args
       await jewels.seqCheck(targetFolder)

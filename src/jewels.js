@@ -236,6 +236,29 @@ exports.pathCheckSimple = async (csvFilePath) => {
   }
 }
 
+exports.triple = async (csvFilePath) => {
+  console.log("TRIPLE STUFF", csvFilePath)
+  const fullCSVPath = nodePath.resolve(csvFilePath)
+  const fileData = fs.readFileSync(csvFilePath).toString()
+  const items = parse(fileData)
+
+  const finalData = []
+
+  for (let row of items) {
+    finalData.push(row)
+    finalData.push(row)
+    finalData.push(row)
+  }
+
+  const workbook = XLSX.utils.book_new()
+  const worksheet = XLSX.utils.aoa_to_sheet(finalData)
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'files')
+
+  const outPath = `${fullCSVPath}-tripled.xlsx`
+  XLSX.writeFile(workbook, outPath)
+}
+
 exports.dump = async (targetFolder, outputFolder) => {
   const folderPath = require('path').resolve(process.cwd(), targetFolder)
   const outPath = require('path').resolve(process.cwd(), outputFolder || targetFolder) + '/out.xlsx'
